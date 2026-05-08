@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from students .models import studentsModel
-from .serializers import StudentSerializers
+from .serializers import StudentSerializers,employeeSerializers
 from rest_framework .response import Response
 from rest_framework import status
 from rest_framework .decorators import api_view
 
+from rest_framework .views import APIView
+from employees .models import employeeModel
+from django.http import Http404
 # Create your views here.
 @api_view(['GET'])
 def studentviews(request):
@@ -49,3 +52,47 @@ def studentDetalview(request,pk):
     elif request.method=="DELETE":
        students.delete()
        return Response(status=status.HTTP_204_NO_CONTENT)   
+
+#this a start a class base views use 
+
+
+class employeeviews(APIView):
+   def get(self,request):
+      employees=employeeModel.objects.all()
+      serializer=employeeSerializers(employees,many=True)
+      return Response(serializer.data,status=status.HTTP_200_OK)
+   
+   def post(self ,request):
+      serializer=employeeSerializers(data=request.data)
+      if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data,status=status.HTTP_201_CREATED)
+      return Response(serializer.errors,status=status.HTTP_404_NOT_FOUND)
+      
+class employeeDetails(APIView):
+   def get_object(self,pk):
+      try:
+         return employeeModel.objects.get(pk=pk)
+      except employeeModel.DoesNotExist:
+         raise Http404
+         
+   def get(self,request,pk):
+         employee=self.get_object(pk)
+         serializer=employeeSerializers(employee)
+         return Response(serializer.data, status=status.HTTP_200_OK)
+      
+   def put(self,request,pk):
+         employee=self.get_object(pk)
+         serializer=employeeSerializers(employee,data=request.data)
+         if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+         return Response(serializer.errors,status=status.HTTP_204_NO_CONTENT)
+   
+   def delete(self,request,pk):
+      employee=self.get_object(pk)
+      employee.delete()
+      return Response(status=status.HTTP_204_NO_CONTENT)
+
+   
+
