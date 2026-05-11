@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from students .models import studentsModel
 from .serializers import StudentSerializers,employeeSerializers
@@ -10,7 +10,7 @@ from rest_framework .views import APIView
 from employees .models import employeeModel
 from django.http import Http404
 
-from rest_framework import mixins,generics
+from rest_framework import mixins,generics,viewsets
 # Create your views here.
 @api_view(['GET'])
 def studentviews(request):
@@ -132,7 +132,7 @@ class employeeDetails(generics.RetrieveAPIView,generics.UpdateAPIView,generics.D
    serializer_class=employeeSerializers
    lookup_field="pk"
 """
-
+"""
 class employeeviews(generics.ListCreateAPIView):
    queryset=employeeModel.objects.all()
    serializer_class=employeeSerializers
@@ -142,3 +142,42 @@ class employeeDetails(generics.RetrieveUpdateDestroyAPIView):
    queryset=employeeModel.objects.all()
    serializer_class=employeeSerializers
    lookup_field="pk"
+
+"""
+''''
+class employeeviewSet(viewsets.ViewSet):
+   def list(self,request):
+      queryset=employeeModel.objects.all()
+      serializer=employeeSerializers(queryset,many=True)
+      return Response(serializer.data)
+   def create(self,request):
+      serializer=employeeSerializers(data=request.data)
+      if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data)
+      return Response(serializer.errors)
+   
+   def retrieve(self, resquest,pk=None):
+      #queryset=employeeModel.objects.all()
+      employee=get_object_or_404(employeeModel,pk=pk)
+      serializer=employeeSerializers(employee)
+      return Response(serializer.data)
+   
+   def update(self,request,pk=None):
+      employee=get_object_or_404(employeeModel,pk=pk)
+      serializer=employeeSerializers(serializer.data)
+      if serializer.is_valid():
+         serializer.save()
+         return Response(serializer.data)
+      return Response(serializer.errors)
+   def delete(self,request,pk=None):
+      employee=get_object_or_404(employeeModel,pk=pk)
+      employee.delete()
+      return Response(status=status.HTTP_204_NO_CONTENT)
+'''
+
+class employeeviewSet(viewsets.ModelViewSet):
+   queryset=employeeModel.objects.all()
+   serializer_class=employeeSerializers
+   
+
