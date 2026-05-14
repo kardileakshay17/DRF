@@ -14,6 +14,9 @@ from rest_framework import mixins,generics,viewsets
 
 from blogs.models import BlogsModel,CommentModel
 from blogs.serializers import BlogSerializer,CommentSerializer
+
+from .paginations import CustomPagination
+from employees.filters import EmployeeFilter
 # Create your views here.
 @api_view(['GET'])
 def studentviews(request):
@@ -182,6 +185,8 @@ class employeeviewSet(viewsets.ViewSet):
 class employeeviewSet(viewsets.ModelViewSet):
    queryset=employeeModel.objects.all()
    serializer_class=employeeSerializers
+   pagination_class=CustomPagination
+   filterset_class=EmployeeFilter
    
 
 
