@@ -2,7 +2,6 @@ from rest_framework import serializers
 from students .models import studentsModel
 from employees .models import employeeModel
 
-
 class StudentSerializers(serializers.ModelSerializer):
     class Meta:
         model=studentsModel
